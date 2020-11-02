@@ -1,6 +1,7 @@
 package proxy
 
 import (
+  scope "./scope"
   "fmt"
   "context"
   "net"
@@ -10,12 +11,46 @@ import (
   "crypto"
   "crypto/x509"
   "crypto/tls"
-
-  scope "./scope"
+  "errors"
 )
 
 type ctxKey int
 const reqKey ctxKey = 0
+var al = errors.New("Error: Listener already accepted.")
+
+type AcceptListener struct {
+  connection net.Conn
+}
+
+func (listener *al) Accept() (net.Conn, error) {
+
+  if (listener.connection == nil) {
+    return nil, al
+  }
+
+  connection := listener.connection
+  listener.connection = nil
+
+  return connection, nil
+}
+
+func (listener *al) Close() error {
+  return nil
+}
+
+func (listener *al) Address() net.Addr {
+  return listener.connection.LocalAddr()
+}
+
+type ConnectionNotify struct {
+  net.Conn
+  closed chan struct{}
+}
+
+func (cn *ConnectionNotify) Close() {
+  cn.Conn.Close()
+  cn.Closed <- struct{}
+}
 
 type proxySt struct {
   scope		  *scope.Scope
@@ -128,11 +163,11 @@ func (proxy *proxySt) handleConnect(
 	make(chan struct{})
   }
 
-  listen := &OnceAcceptListener{ccNotify.Connect}
+  listen := &AcceptListener{ccNotify.Connect}
 
   err = http.Serve(listen, proxy)
 
-  if (err != nil && err != ErrAlreadyAccepted) {
+  if (err != nil && err != al) {
 	log.Prinln("Error: Failed serving HTTP: %v", err)
   }
 
