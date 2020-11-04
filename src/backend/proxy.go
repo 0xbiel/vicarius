@@ -1,7 +1,7 @@
 package proxy
 
 import (
-  scope "./scope"
+  cert "./cert"
   "fmt"
   "context"
   "net"
@@ -17,6 +17,16 @@ import (
 type ctxKey int
 const reqKey ctxKey = 0
 var al = errors.New("Error: Listener already accepted.")
+var nreqm = func(req *http.Request) {}
+var nresm = func(res *http.Response) error { return nil }
+
+type RequestModifyFunc func(req *http.Request)
+
+type RequestModifyMiddleware func(next RequestModifyFunc) RequestModifyFunc
+
+type ResponseModifyFunc func(res *http.Response) error
+
+type ResponseModifyMiddleware func(ResponseModifyFunc) ResponseModifyFunc
 
 type AcceptListener struct {
   connection net.Conn
@@ -111,7 +121,7 @@ func (proxy *proxySt) modifyRequest(req *http.Request) {
   //prevent reverseProxy to set 'X-Forwarded-For' header.
   req.Header["X-Forwarded-For"] = nil
 
-  fn := nopReqModifier
+  fn := nreqm
 
   for (i := len(proxy.requestMod) - 1; i >= 0; i--) {
     fn = proxy.requestMod[i](fn)
@@ -121,7 +131,7 @@ func (proxy *proxySt) modifyRequest(req *http.Request) {
 }
 
 func (proxy *proxySt) modifyResponse(res *http.Response) error {
-  fn := nopResModifier
+  fn := nresm
 
   for (i := len(proxy.responseMod) -1; i >= 0; i--) {
 	fn = proxy.responseMod[i](fn)
