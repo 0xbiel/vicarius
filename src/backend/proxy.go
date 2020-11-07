@@ -82,7 +82,7 @@ func (proxy *proxySt) Serve(
 }
 
 func Proxy(cert *x509.Certificate, key crypto.PrivateKey) (*ProxySt, error) {
-  certCfg, err := NewCertConfig(cert, key)
+  certCfg, err := certCfg(cert, key)
 
   if (err != nil) {
 	return nil, err
