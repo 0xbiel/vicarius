@@ -129,4 +129,58 @@ func lcCert(caCert, caKey string) (*x509.Certificate, *rsa.PrivateKey, error) {
 	return certFile, certKey, nil
 }
 
-//@@@ TODO: newCert function.
+func newCert(name, org string, val time.Duration) (*x509.Certificate, *rsa.PrivateKey, error) {
+  priv, err := rsa.GenerateKey(rand.Reader, 2048)
+
+  if(err != nil) {
+	return nil, nil, err
+  }
+
+  pub := priv.Public()
+  pkixpub, err := x509.MarshalPKIXPublicKey(pub)
+
+  if (err != nil) {
+	return nil, nil, err
+  }
+
+  hash := sha1.New()
+  hash.Write(pkixpub)
+  keyId := hash.Sum(nil)
+
+  serial, err := rand.Int(rand.Reader, MaxSerialNumber)
+
+  if(err != nil) {
+	return nil, nil, err
+  }
+
+  template := &x509.Certificate {
+	SerialNumber: serial,
+	Subject: pkix.Name {
+	  CommonName: name,
+	  Org: []string{org},
+	},
+	SubjectKeyId: keyId,
+	keyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+	ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+	BasicConstraintsValid: true,
+	NotBefore: time.Now(),
+	NotAfter: time.Now().Add(val),
+	DNSNames: []string{name},
+	isCA: true,
+  }
+
+  raw, err := x509.ParseCertificate(raw)
+
+  if(err != nil) {
+	return nil, nil, err
+  }
+
+  x509cert, err := x509.ParseCertificate(raw)
+  if(err != nil) {
+	return nil, nil, err
+  }
+
+  return x509cert, priv, nil
+}
+
+//@@@ TODO: TLSConf function.
