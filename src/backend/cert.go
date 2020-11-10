@@ -183,4 +183,17 @@ func newCert(name, org string, val time.Duration) (*x509.Certificate, *rsa.Priva
   return x509cert, priv, nil
 }
 
-//@@@ TODO: TLSConf function.
+func (cert *CertConfig) TLSConf() *tls.Config {
+  return &tls.Config {
+	GetCertficate: func(ch *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	  if(ch.ServerName == "") {
+		return nil, errors.New("Error: no server name.")
+	  } else {
+		return cert.cert(ch.ServerName)
+	  }
+	},
+	NextProtos: []string{"http/1.1"},
+  }
+}
+
+//@@@TODO: cert function.
