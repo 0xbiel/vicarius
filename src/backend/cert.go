@@ -196,4 +196,52 @@ func (cert *CertConfig) TLSConf() *tls.Config {
   }
 }
 
-//@@@TODO: cert function.
+func (cert *CertConfig) certficate(hostname string) (*tls.Certificate, error) {
+  host, _, err := net.SplitHostPort(hostname)
+  if(err == nil) {
+	hostname = host
+  }
+
+  serial, err := rand.Int(rand.Reader, MaxSerialNumber)
+  if(err != nil) {
+	return nil, err
+  }
+
+  template := &x509.Certificate {
+	SerialNumber: serial,
+	Subject: pkix.Name {
+	  CommomName: hostname,
+	  Organization: []string{"Vicarius"},
+	},
+	SubjectKeyId: cert.KeyId,
+	KeyUsage: x509.KeyUsageKeyEncipherment | x509.KeyUsageDig
+italSignature,
+	ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+	BasicConstraintsValid: true,
+	NotBefore:             time.Now().Add(-24 * time.Hour),
+	NotAfter:              time.Now().Add(24 * time.Hour),
+  }
+
+  if(ip := net.ParseIP(hostname); ip != nil) {
+	template.IPAdresses = []net.IP{ip}
+  } else {
+	template.DNSNames = []string{hostname}
+  }
+
+  raw, err := x509.CreateCertificate(rand.Reader, tmplate, cert.ca, cert.priv.Public(), cert.caPriv)
+
+  if(err != nil) {
+	return nil, err
+  }
+
+  x509Cert, err := x509.ParseCertificate(raw)
+  if(err != nil){
+	return nil, err
+  }
+
+  return &tls.Certificate {
+	Certificate: [][]byte{raw, cert.ca.Raw},
+	PrivateKey: cert.priv,
+	Leaf: x509Cert,
+  }, nil
+}
