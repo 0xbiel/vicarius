@@ -9,4 +9,12 @@ import (
   "regexp"
 )
 
-//@@@TODO: proj struct.
+type projOpen func(name string) error
+type projClose func(name string) error
+
+type Project struct {
+  Name string
+  IsActive bool
+}
+
+//@@@TODO: details struct.
