@@ -17,4 +17,14 @@ type Project struct {
   IsActive bool
 }
 
-//@@@TODO: details struct.
+type Target struct {
+  repo Repository
+  activeProj string
+  projOpenFns []projOpen
+  projCloseFns []projClose
+  mutex sync.RWMutex
+}
+
+//@@@ TODO: error vars.
+
+//@@@ TODO: newTarget func.
