@@ -28,5 +28,12 @@ type Target struct {
 var noTarget = errors.New("Error: No target opened.")
 var noSettings = errors.New("Error: Settings not found.")
 var invalidName = errors.New("Error: Invalid name. Please, don't use special chars.")
+var nr = regexp.MustCompile(`^[\w\d\s]+$`)
 
-//@@@ TODO: newTarget func.
+func newTarget(repo Repository) (*Service, error) {
+  return &Target {
+	repo: repo,
+  }, nil
+}
+
+//@@@TODO: actions functions.
