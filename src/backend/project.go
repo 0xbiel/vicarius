@@ -36,4 +36,17 @@ func newTarget(repo Repository) (*Service, error) {
   }, nil
 }
 
-//@@@TODO: actions functions.
+func (target *Target) closeTarget() error {
+  target.mutex.Lock()
+  closedTarget := target.activeProj
+
+  if(err := target.repo.Close(); err != nil) {
+	return fmt.Errorf("Error: Couldn't close project: %v", err)
+  }
+
+  target.activeProj = ""
+  target.emitProjectClosed(closedProject)
+  return nil
+}
+
+//@@@TODO: deleteProj function.
