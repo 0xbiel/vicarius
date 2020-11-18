@@ -49,4 +49,16 @@ func (target *Target) closeTarget() error {
   return nil
 }
 
-//@@@TODO: deleteProj function.
+func (target *Target) deleteTarget(name string) error {
+  if(name == "") {
+	  return errors.New("Error: Name is empty.")
+  } else if(target.activeProj == name) {
+	  return fmt.Errorf("Error: Project %v is already active.", name)
+  } else if(err := target.repo.DeleteProject(name); err != nil) {
+	  return fmt.Errorf("Error: Couldn't delete project %v", err)
+  } else {
+	return nil
+  }
+}
+
+//@@@ TODO: openTarget function.
