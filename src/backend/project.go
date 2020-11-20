@@ -57,8 +57,33 @@ func (target *Target) deleteTarget(name string) error {
   } else if(err := target.repo.DeleteProject(name); err != nil) {
 	  return fmt.Errorf("Error: Couldn't delete project %v", err)
   } else {
-	return nil
+	  return nil
   }
 }
 
-//@@@ TODO: openTarget function.
+func (target *Target) openTarget(ctx context.Context, name string) (Project, error) {
+  if(!nameRegexp.MatchString(name)) {
+	return Project{}, invalidName
+  }
+
+  target.mutex.Lock()
+  defer target.mutex.Unlock()
+
+  if(err := target.repo.Close(); err != nil) {
+	return Project{}, fmt.Errorf("Error: Already open.", err)
+  }
+
+  if(err := svc.repo.OpenProject(name); err != nil) {
+	return Project{}, fmt.Errorf("Error: could not open database: %v", err)
+  }
+
+  target.activeProj = name
+  target.emitProjectOpened()
+
+  return Project{
+	Name:     name,
+	IsActive: true,
+  }, nil
+}
+
+//@@@TODO: activeProject func.
