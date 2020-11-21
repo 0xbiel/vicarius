@@ -86,4 +86,16 @@ func (target *Target) openTarget(ctx context.Context, name string) (Project, err
   }, nil
 }
 
-//@@@TODO: activeProject func.
+func (target *Target) activeProject() (Project, error) {
+  activeProj := target.activeProject
+
+  if(activeProj == "") {
+	return Project{}, noTarget
+  }
+
+  return Project {
+	Name: activeProj,
+  }, nil
+}
+
+//@@@TODO: projects function.
