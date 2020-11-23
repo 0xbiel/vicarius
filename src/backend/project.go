@@ -98,4 +98,13 @@ func (target *Target) activeProject() (Project, error) {
   }, nil
 }
 
-//@@@TODO: projects function.
+func (target *Target) Projects() ([]Project, error) {
+  project, err := target.repo.Projects()
+
+  if(err != nil) {
+	return nil, fmt.Errorf("Error: Could not read projects: %v", err)
+  }
+  return projects, nil
+}
+
+//@@@TODO: projOpen function.
