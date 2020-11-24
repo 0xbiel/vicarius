@@ -45,7 +45,7 @@ func (target *Target) closeTarget() error {
   }
 
   target.activeProj = ""
-  target.emitProjectClosed(closedProject)
+  target.emitProjClosed(closedProject)
   return nil
 }
 
@@ -78,7 +78,7 @@ func (target *Target) openTarget(ctx context.Context, name string) (Project, err
   }
 
   target.activeProj = name
-  target.emitProjectOpened()
+  target.emitProjOpened()
 
   return Project{
 	Name:     name,
@@ -107,4 +107,10 @@ func (target *Target) Projects() ([]Project, error) {
   return projects, nil
 }
 
-//@@@TODO: projOpen function.
+func (target *Target) onProjectOpen(po projOpen) {
+  target.mutex.Lock()
+  defer target.mutex.Unlock()
+  target.projCloseFns = append(target.projCloseFns, po)
+}
+
+//@@@TODO: emitProjClosed function.
