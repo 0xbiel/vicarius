@@ -113,4 +113,12 @@ func (target *Target) onProjectOpen(po projOpen) {
   target.projCloseFns = append(target.projCloseFns, po)
 }
 
+func (target *Target) emitProjOpened() {
+  for(_, fn := range(target.onProjectOpen)) {
+	if(err := fn(target.activeProj); err != nil) {
+	  log.Printf("Error: Could not execute onProjectOpen function: %v", err)
+	}
+  }
+}
+
 //@@@TODO: emitProjClosed function.
