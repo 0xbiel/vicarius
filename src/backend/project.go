@@ -121,4 +121,10 @@ func (target *Target) emitProjOpened() {
   }
 }
 
-//@@@TODO: emitProjClosed function.
+func (target *Target) emitProjClosed(name string) {
+  for(_, fn := range(target.onProjectClose)) {
+	if(err := fn(name); err != nil) {
+	  log.Printf("Error: Could not execute onProjectClose function: %v", err)
+	}
+  }
+}
