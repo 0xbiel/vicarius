@@ -12,6 +12,15 @@ import (
 type projOpen func(name string) error
 type projClose func(name string) error
 
+type Repository interface {
+  UpsertSettings(ctx context.Context, module string, settings interface{}) error
+  FindSettingsByModule(ctx context.Context, module string, settings interface{}) error
+  OpenProject(name string) error
+  DeleteProject(name string) error
+  Projects() ([]Project, error)
+  Close() error
+}
+
 type Project struct {
   Name string
   IsActive bool
