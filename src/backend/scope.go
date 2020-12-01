@@ -22,4 +22,10 @@ type Scope struct {
   mutex	sync.RWMutex
 }
 
-//@@@TODO: 'Rule' struct.
+type Rule struct {
+  URL    *regexp.Regexp
+  Header Header
+  Body   *regexp.Regexp
+}
+
+//@@@TODO: Header struct
