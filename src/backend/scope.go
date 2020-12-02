@@ -28,4 +28,9 @@ type Rule struct {
   Body   *regexp.Regexp
 }
 
-//@@@TODO: Header struct
+type Header struct {
+  Key	*regexp.Regexp
+  Value	*regexp.Regexp
+}
+
+//@@@ TODO: NewScope function.
