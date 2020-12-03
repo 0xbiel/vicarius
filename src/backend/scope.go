@@ -33,4 +33,28 @@ type Header struct {
   Value	*regexp.Regexp
 }
 
-//@@@ TODO: NewScope function.
+func New(repo Repository, projService *proj.Service) *Scope {
+  scope := &Scope{
+	repo: repo,
+  }
+
+  projService.OnProjectOpen(func(_ string) error {
+	err := s.load(context.Background())
+
+	if err == proj.ErrNoSettings {
+	  return nil
+	}
+	if err != nil {
+	  return fmt.Errorf("Error: could not load scope: %v", err)
+	}
+		return nil
+	})
+
+	projService.OnProjectClose(func(_ string) error {
+		scope.unload()
+		return nil
+	})
+
+	return scope
+}
+//@@@TODO: Rules function.
