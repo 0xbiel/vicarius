@@ -57,4 +57,10 @@ func New(repo Repository, projService *proj.Service) *Scope {
 
 	return scope
 }
-//@@@TODO: Rules function.
+
+func (scope *Scope) Rules() []Rule {
+  defer scope.mutex.RUnlock()
+  return scope.rules
+}
+
+//@@@TODO: LoadScope function.
